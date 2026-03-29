@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "manager", "employee"] },
+        "companyId": { "type": "string" },
+        "managerId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "email", "role", "companyId"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Organization details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "baseCurrency": { "type": "string" },
+        "country": { "type": "string" },
+        "adminId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "name", "baseCurrency", "adminId"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Reimbursement claim",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "companyId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "baseAmount": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "pending", "approved", "rejected"] },
+        "currentApproverIndex": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "employeeId", "companyId", "amount", "currency", "status"]
+    },
+    "ApprovalRule": {
+      "title": "Approval Rule",
+      "description": "Workflow configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "companyId": { "type": "string" },
+        "name": { "type": "string" },
+        "isManagerApprover": { "type": "boolean" },
+        "minApprovalPercentage": { "type": "number" },
+        "isSequenceRequired": { "type": "boolean" }
+      },
+      "required": ["id", "companyId", "name"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "User", "description": "User profiles" },
+    "/companies/{companyId}": { "schema": "Company", "description": "Company data" },
+    "/expenses/{expenseId}": { "schema": "Expense", "description": "Expense claims" },
+    "/approvalRules/{ruleId}": { "schema": "ApprovalRule", "description": "Approval workflows" }
+  }
+}

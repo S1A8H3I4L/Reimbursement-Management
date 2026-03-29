@@ -1,0 +1,7 @@
+{
+  "name": "Expense Management System",
+  "description": "A robust, enterprise-grade Expense Management System for submitting, reviewing, and approving business expenses with real-time updates and multi-level approval workflows.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

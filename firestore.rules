@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "sahilpanchal1818@gmail.com" && request.auth.token.email_verified == true));
+    }
+    
+    function isManager() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager';
+    }
+
+    function sameCompany(companyId) {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
+    }
+
+    // User Rules
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (isOwner(uid) || sameCompany(resource.data.companyId));
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(uid) || isAdmin());
+    }
+
+    // Company Rules
+    match /companies/{companyId} {
+      allow read: if isAuthenticated() && sameCompany(companyId);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() && sameCompany(companyId);
+    }
+
+    // Expense Rules
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && sameCompany(resource.data.companyId);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isOwner(resource.data.employeeId) || 
+        isAdmin() || 
+        isManager()
+      ) && sameCompany(resource.data.companyId);
+    }
+
+    // Approval Rule Rules
+    match /approvalRules/{ruleId} {
+      allow read: if isAuthenticated() && sameCompany(resource.data.companyId);
+      allow write: if isAdmin();
+    }
+  }
+}
